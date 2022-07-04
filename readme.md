@@ -1,4 +1,4 @@
-Concepção inifical de pipeline as CLI<br>
+Concepção inicial de pipeline as CLI<br>
 
 Exemplo de comando:
 
