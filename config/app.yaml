@@ -1,0 +1,12 @@
+app:
+  technology: "react"
+  technologyVersion: 12
+  unitTesting: 
+    enabled: true
+    unitTestingTool: "default"
+  secrets:
+    - 
+      vault: "hue"
+      values:
+        - azureReposPat
+        - azureReposUser

@@ -1,0 +1,5 @@
+Concepção inifical de pipeline as CLI<br>
+
+Exemplo de comando:
+
+<code>go run main.go va load -u ${USER} -p ${PASS}</code>
