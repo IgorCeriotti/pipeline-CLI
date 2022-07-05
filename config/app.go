@@ -3,7 +3,6 @@ package config
 import (
 	"io/ioutil"
 	"log"
-	"os"
 
 	"gopkg.in/yaml.v3"
 )
@@ -24,7 +23,7 @@ type AppStruct struct {
 }
 
 func ParseYaml() AppStruct {
-	yamlFile, err := ioutil.ReadFile(os.Args[1])
+	yamlFile, err := ioutil.ReadFile("./config/app.yaml")
 	if err != nil {
 		log.Fatal(err)
 	}

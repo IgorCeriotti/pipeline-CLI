@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	"cli_go.com/b/config"
+	config "cli_go.com/b/config"
 	"gopkg.in/yaml.v3"
 )
 
@@ -41,19 +41,22 @@ func getSecrets() {
 	println("Dados obtidos com sucesso!")
 }
 
-//TODO: modificar para usar o metodo de config de setar secrets no arquivo yaml
 func PopulateSecrets() {
 	getSecrets()
 
+	env := config.LoadEnv()
 	println("Setando segredos para ambiente...")
-	for _, user := range secrets {
-		os.Setenv("USER", user)
-		urlCall := os.ExpandEnv("http://localhost:3000/vault/${VAULT}/secret/{USER}")
+
+	segredos := make([]*config.Segredos, len(secrets))
+
+	for _, key := range secrets {
+		os.Setenv("USER", key)
+		urlCall := os.ExpandEnv("http://localhost:3000/vault/{VAULT}/secret/{USER}")
 
 		client := &http.Client{}
 		req, err := http.NewRequest("GET", urlCall, nil)
 		if err == nil {
-			req.Header.Set("Authorization", os.Getenv("TOKEN_VAULT"))
+			req.Header.Set("Authorization", env.VaultAuth)
 
 			res, errRes := client.Do(req)
 			if errRes == nil {
@@ -65,7 +68,10 @@ func PopulateSecrets() {
 						log.Fatal(error)
 						log.Panic("Impossível realizar o parse da resposta para struct!")
 					}
-					os.Setenv(user, resSecret.Secret)
+					var s config.Segredos
+					s.Key = key
+					s.Secret = resSecret.Secret
+					segredos = append(segredos, &s)
 				} else {
 					log.Fatal("Erro ao ler resposta do servidor do cofre!")
 				}
@@ -76,5 +82,8 @@ func PopulateSecrets() {
 			log.Fatal(fmt.Errorf("Falha ao iniciar novo request! >>>>\n%s", err.Error()))
 		}
 	}
+	//TODO: verificar porque as duas primeiras entradas são nulas!
+	env.Secrets = segredos
+	config.DefineVariables(env)
 	println("Segredos setados com sucesso!")
 }

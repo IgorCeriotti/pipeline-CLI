@@ -10,13 +10,16 @@ import (
 )
 
 type Environment struct {
-	VaultAuth string `yaml:"VAULT_AUTH"`
+	VaultAuth string      `yaml:"VAULT_AUTH"`
+	Secrets   []*Segredos `yaml:"secrets,omitempty"`
 }
 
-//TODO: metodo para ler e arquivo e retornar o struct
-var Env Environment
+type Segredos struct {
+	Key    string `yaml:"key"`
+	Secret string `yaml:"secret"`
+}
 
-func setViperConfig() {
+func setViperConfig(env Environment) {
 	viper.SetConfigName("env")
 	viper.AddConfigPath("./config/")
 	err := viper.ReadInConfig()
@@ -24,16 +27,16 @@ func setViperConfig() {
 		log.Panic(fmt.Errorf("Erro ao ler arquivo de env!\n%v", err))
 	}
 
-	err = viper.Unmarshal(&Env)
+	err = viper.Unmarshal(&env)
 	if err != nil {
 		log.Fatal(fmt.Errorf("Falha ao decodificar yaml de env para struct\n%v", err))
 	}
 }
 
-func DefineVariables() {
-	setViperConfig()
+func DefineVariables(env Environment) {
+	setViperConfig(env)
 
-	e, err := yaml.Marshal(&Env)
+	e, err := yaml.Marshal(&env)
 	if err != nil {
 		log.Fatal(fmt.Errorf("Erro ao realizar marshal do novo valor do ambiente!\n%v", err))
 	}
@@ -42,4 +45,20 @@ func DefineVariables() {
 	if err != nil {
 		log.Fatal(fmt.Errorf("Falha ao escrever no env.yaml!\n%v", err))
 	}
+}
+
+func LoadEnv() Environment {
+	envFile, err := ioutil.ReadFile("./config/env.yaml")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var env Environment
+
+	err2 := yaml.Unmarshal(envFile, &env)
+	if err2 != nil {
+		log.Fatal(err2)
+	}
+
+	return env
 }

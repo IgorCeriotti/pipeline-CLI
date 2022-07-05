@@ -18,7 +18,7 @@ var authCmd = &cobra.Command{
 }
 
 var secretsCmd = &cobra.Command{
-	Use:     "load secrets",
+	Use:     "pipeline-load secrets",
 	Aliases: []string{"s"},
 	Short:   "Seta secrets definidos no app.yaml para o ambiente",
 	Args:    cobra.ExactArgs(1),
@@ -32,5 +32,6 @@ func init() {
 	authCmd.Flags().StringVarP(&password, "password", "p", "", "Senha para login no cofre")
 	authCmd.MarkFlagsRequiredTogether("user", "password")
 
-	rootCmd.AddCommand(authCmd, secretsCmd)
+	rootCmd.AddCommand(authCmd)
+	rootCmd.AddCommand(secretsCmd)
 }

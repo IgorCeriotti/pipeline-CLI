@@ -35,8 +35,12 @@ func GetAuthTokenVault(user string, password string) {
 				json.Unmarshal(resBytes, &resToken)
 
 				if len(resToken.Message) == 0 {
-					conf.Env.VaultAuth = resToken.Token
-					conf.DefineVariables()
+					env := conf.LoadEnv()
+					if err != nil {
+						log.Fatal(err)
+					}
+					env.VaultAuth = resToken.Token
+					conf.DefineVariables(env)
 				} else {
 					log.Fatalf("Autenticacao no vault falhou!\n%s", resToken.Message)
 				}
